@@ -1,0 +1,328 @@
+{
+  "datasets": [
+    {
+      "name": "29391df2",
+      "displayName": "fact_transaction_denorm",
+      "config": {
+        "version": "1.1",
+        "source": "ecommerce.gold.fact_transaction_denorm",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dim_customer",
+      "displayName": "Customer Dimension",
+      "config": {
+        "version": "1.1",
+        "source": "ecommerce.gold.gld_dim_customer",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ]
+      }
+    }
+  ],
+  "relationshipGraphs": [
+    {
+      "sources": [
+        {
+          "name": "fact_transaction_denorm",
+          "datasetName": "29391df2"
+        },
+        {
+          "name": "Customer_Dimension",
+          "datasetName": "dim_customer"
+        }
+      ],
+      "relationships": [
+        {
+          "name": "relationship_0",
+          "from": "fact_transaction_denorm",
+          "to": "Customer_Dimension",
+          "on": "`fact_transaction_denorm`.`customer_id` = `Customer_Dimension`.`customer_id`",
+          "cardinality": "CARDINALITY_MANY_TO_ONE"
+        }
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "7c44d14a",
+      "displayName": "Sales",
+      "layout": [
+        {
+          "widget": {
+            "name": "e811a926",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Slaes Insights"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "12171019",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "29391df2",
+                  "fields": [
+                    {
+                      "name": "monthly(transaction_date)",
+                      "expression": "DATE_TRUNC(\"MONTH\", `transaction_date`)"
+                    },
+                    {
+                      "name": "sum(net_amount)",
+                      "expression": "SUM(`net_amount`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Monthly Sales by Net Amount",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "monthly(transaction_date)",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(net_amount)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "100e49d8",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "fact_transaction_denorm__category_name",
+                      "expression": "`fact_transaction_denorm`.`category_name`"
+                    },
+                    {
+                      "name": "sum(fact_transaction_denorm__net_amount)",
+                      "expression": "SUM(`fact_transaction_denorm`.`net_amount`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": {
+                  "value": "Net Amount by Region",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "fact_transaction_denorm__category_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(fact_transaction_denorm__net_amount)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "53fc34fa",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "sum(fact_transaction_denorm__net_amount)",
+                      "expression": "SUM(`fact_transaction_denorm`.`net_amount`)"
+                    },
+                    {
+                      "name": "fact_transaction_denorm__hour_of_day",
+                      "expression": "`fact_transaction_denorm`.`hour_of_day`"
+                    },
+                    {
+                      "name": "fact_transaction_denorm__day_name",
+                      "expression": "`fact_transaction_denorm`.`day_name`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "heatmap",
+              "encodings": {
+                "x": {
+                  "fieldName": "fact_transaction_denorm__hour_of_day",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "fact_transaction_denorm__day_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "color": {
+                  "fieldName": "sum(fact_transaction_denorm__net_amount)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 12,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "0df95a58",
+      "displayName": "Global Filters",
+      "layout": [
+        {
+          "widget": {
+            "name": "e88d78d2",
+            "queries": [
+              {
+                "name": "dashboards/01f1b382bbce120fb13da9b75acd03df/datasets/01f1b3fb519b114681427aec3421da27_category_name",
+                "query": {
+                  "datasetName": "29391df2",
+                  "fields": [
+                    {
+                      "name": "category_name",
+                      "expression": "`category_name`"
+                    },
+                    {
+                      "name": "category_name_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "category_name",
+                    "queryName": "dashboards/01f1b382bbce120fb13da9b75acd03df/datasets/01f1b3fb519b114681427aec3421da27_category_name"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_GLOBAL_FILTERS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "2501241e",
+      "displayName": "Marketing",
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
