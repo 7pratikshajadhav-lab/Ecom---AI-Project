@@ -15,8 +15,54 @@
           {
             "name": "count",
             "expr": "COUNT(*)",
-            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
             "displayName": "Count"
+          },
+          {
+            "displayName": "Total Net Amount",
+            "format": {
+              "type": "currency",
+              "currencyCode": "INR",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              },
+              "abbreviation": "compact"
+            },
+            "synonyms": [
+              "net sales",
+              "net revenue"
+            ],
+            "name": "total_net_amount",
+            "expr": "SUM(net_amount)"
+          },
+          {
+            "name": "total_discount_amount",
+            "expr": "SUM(discount_amount_inr)",
+            "displayName": "Total Discount Amount"
+          },
+          {
+            "name": "avg_discount_pct",
+            "expr": "AVG(discount_pct)",
+            "displayName": "Average Discount Percentage"
+          },
+          {
+            "name": "total_quantity_sold",
+            "expr": "SUM(quantity)",
+            "displayName": "Total Quantity Sold"
+          },
+          {
+            "name": "AOV",
+            "expr": "SUM(net_amount_inr) / COUNT(*)",
+            "displayName": "Average Order Value",
+            "format": {
+              "type": "currency",
+              "currencyCode": "INR",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              },
+              "abbreviation": "compact"
+            }
           }
         ]
       }
@@ -68,14 +114,14 @@
             "name": "e811a926",
             "multilineTextboxSpec": {
               "lines": [
-                "## Slaes Insights"
+                "## Sales Insights"
               ]
             }
           },
           "position": {
             "x": 0,
             "y": 0,
-            "width": 12,
+            "width": 9,
             "height": 1
           }
         },
@@ -86,15 +132,14 @@
               {
                 "name": "main_query",
                 "query": {
-                  "datasetName": "29391df2",
                   "fields": [
                     {
-                      "name": "monthly(transaction_date)",
-                      "expression": "DATE_TRUNC(\"MONTH\", `transaction_date`)"
+                      "name": "monthly(fact_transaction_denorm__transaction_date)",
+                      "expression": "DATE_TRUNC(\"MONTH\", `fact_transaction_denorm`.`transaction_date`)"
                     },
                     {
-                      "name": "sum(net_amount)",
-                      "expression": "SUM(`net_amount`)"
+                      "name": "sum(fact_transaction_denorm__net_amount)",
+                      "expression": "SUM(`fact_transaction_denorm`.`net_amount`)"
                     }
                   ],
                   "disaggregated": false
@@ -113,13 +158,13 @@
               "widgetType": "line",
               "encodings": {
                 "x": {
-                  "fieldName": "monthly(transaction_date)",
+                  "fieldName": "monthly(fact_transaction_denorm__transaction_date)",
                   "scale": {
                     "type": "temporal"
                   }
                 },
                 "y": {
-                  "fieldName": "sum(net_amount)",
+                  "fieldName": "sum(fact_transaction_denorm__net_amount)",
                   "scale": {
                     "type": "quantitative"
                   }
@@ -132,8 +177,8 @@
           },
           "position": {
             "x": 0,
-            "y": 1,
-            "width": 6,
+            "y": 3,
+            "width": 3,
             "height": 6
           }
         },
@@ -152,6 +197,10 @@
                     {
                       "name": "sum(fact_transaction_denorm__net_amount)",
                       "expression": "SUM(`fact_transaction_denorm`.`net_amount`)"
+                    },
+                    {
+                      "name": "sum(fact_transaction_denorm__discount_amount_inr)",
+                      "expression": "SUM(`fact_transaction_denorm`.`discount_amount_inr`)"
                     }
                   ],
                   "disaggregated": false
@@ -163,12 +212,12 @@
                 "showTitle": true,
                 "showDescription": false,
                 "title": {
-                  "value": "Net Amount by Region",
+                  "value": "Net Amount by Category",
                   "fields": []
                 }
               },
-              "version": 3,
-              "widgetType": "bar",
+              "version": 1,
+              "widgetType": "combo",
               "encodings": {
                 "x": {
                   "fieldName": "fact_transaction_denorm__category_name",
@@ -177,7 +226,21 @@
                   }
                 },
                 "y": {
-                  "fieldName": "sum(fact_transaction_denorm__net_amount)",
+                  "primary": {
+                    "fields": [
+                      {
+                        "fieldName": "sum(fact_transaction_denorm__net_amount)",
+                        "displayName": "Net Amount"
+                      }
+                    ]
+                  },
+                  "secondary": {
+                    "fields": [
+                      {
+                        "fieldName": "sum(fact_transaction_denorm__discount_amount_inr)"
+                      }
+                    ]
+                  },
                   "scale": {
                     "type": "quantitative"
                   }
@@ -189,15 +252,15 @@
             }
           },
           "position": {
-            "x": 6,
-            "y": 1,
-            "width": 6,
+            "x": 4,
+            "y": 9,
+            "width": 5,
             "height": 6
           }
         },
         {
           "widget": {
-            "name": "53fc34fa",
+            "name": "net-amount-by-day-hour",
             "queries": [
               {
                 "name": "main_query",
@@ -221,6 +284,13 @@
               }
             ],
             "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Net amount by day & hour",
+                  "fields": []
+                }
+              },
               "version": 3,
               "widgetType": "heatmap",
               "encodings": {
@@ -250,9 +320,527 @@
           },
           "position": {
             "x": 0,
-            "y": 7,
-            "width": 12,
+            "y": 9,
+            "width": 4,
             "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "198f277d",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "measure(fact_transaction_denorm__total_net_amount)",
+                      "expression": "MEASURE(`fact_transaction_denorm`.`total_net_amount`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": "Total Net Amount",
+                "description": "Sum of net transaction amounts after discounts and taxes"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(fact_transaction_denorm__total_net_amount)",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "INR",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  },
+                  "displayName": "Total Net Amount"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f3368bc9",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "measure(fact_transaction_denorm__total_discount_amount)",
+                      "expression": "MEASURE(`fact_transaction_denorm`.`total_discount_amount`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": "Total Discount Amount"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(fact_transaction_denorm__total_discount_amount)",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "INR",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  },
+                  "displayName": "Total Discount Amount"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 1,
+            "y": 1,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "98236943",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "measure(fact_transaction_denorm__avg_discount_pct)",
+                      "expression": "MEASURE(`fact_transaction_denorm`.`avg_discount_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": "Average Discount Percentage"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(fact_transaction_denorm__avg_discount_pct)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  },
+                  "displayName": "Average Discount Percentage"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 1,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "7895a2c8",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "measure(fact_transaction_denorm__total_quantity_sold)",
+                      "expression": "MEASURE(`fact_transaction_denorm`.`total_quantity_sold`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": "Total Quantity Sold"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(fact_transaction_denorm__total_quantity_sold)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    }
+                  },
+                  "displayName": "Total Quantity Sold"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 1,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f5842f67",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "fact_transaction_denorm__coupon_code",
+                      "expression": "`fact_transaction_denorm`.`coupon_code`"
+                    },
+                    {
+                      "name": "sum(fact_transaction_denorm__net_amount)",
+                      "expression": "SUM(`fact_transaction_denorm`.`net_amount`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": {
+                  "value": "Net Amount by Coupon code",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "fact_transaction_denorm__coupon_code",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(fact_transaction_denorm__net_amount)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 3,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "2ea08dee",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "sum(fact_transaction_denorm__net_amount_inr)",
+                      "expression": "SUM(`fact_transaction_denorm`.`net_amount_inr`)"
+                    },
+                    {
+                      "name": "fact_transaction_denorm__product_id",
+                      "expression": "`fact_transaction_denorm`.`product_id`"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "DESC",
+                      "expression": "SUM(`fact_transaction_denorm`.`net_amount_inr`)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": {
+                  "value": "Net Amount by Category",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "sum(fact_transaction_denorm__net_amount_inr)"
+                  },
+                  {
+                    "fieldName": "fact_transaction_denorm__product_id"
+                  }
+                ],
+                "rowOrder": [
+                  {
+                    "by": "column-reversed",
+                    "field": {
+                      "index": 0
+                    }
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 15,
+            "width": 3,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "27019a20",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "sum(fact_transaction_denorm__net_amount)",
+                      "expression": "SUM(`fact_transaction_denorm`.`net_amount`)"
+                    },
+                    {
+                      "name": "Customer_Dimension__country",
+                      "expression": "`Customer_Dimension`.`country`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Net Amount by Country",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "sum(fact_transaction_denorm__net_amount)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "Customer_Dimension__country",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 3,
+            "width": 3,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "20d385af",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "fact_transaction_denorm__brand_name",
+                      "expression": "`fact_transaction_denorm`.`brand_name`"
+                    },
+                    {
+                      "name": "sum(fact_transaction_denorm__net_amount_inr)",
+                      "expression": "SUM(`fact_transaction_denorm`.`net_amount_inr`)"
+                    },
+                    {
+                      "name": "sum(fact_transaction_denorm__discount_amount_inr)",
+                      "expression": "SUM(`fact_transaction_denorm`.`discount_amount_inr`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": {
+                  "value": "Net Amount by Brand",
+                  "fields": []
+                }
+              },
+              "version": 1,
+              "widgetType": "combo",
+              "encodings": {
+                "x": {
+                  "fieldName": "fact_transaction_denorm__brand_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "primary": {
+                    "fields": [
+                      {
+                        "fieldName": "sum(fact_transaction_denorm__net_amount_inr)",
+                        "displayName": "Discount amount"
+                      }
+                    ]
+                  },
+                  "secondary": {
+                    "fields": [
+                      {
+                        "fieldName": "sum(fact_transaction_denorm__discount_amount_inr)"
+                      }
+                    ]
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 15,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "9b4b9551",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "measure(fact_transaction_denorm__AOV)",
+                      "expression": "MEASURE(`fact_transaction_denorm`.`AOV`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": "Average Order Value"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(fact_transaction_denorm__AOV)",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "INR",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  },
+                  "displayName": "Average Order Value"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 1,
+            "width": 1,
+            "height": 2
           }
         }
       ],
@@ -303,7 +891,187 @@
           },
           "position": {
             "x": 0,
+            "y": 4,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "0e7eca1c",
+            "queries": [
+              {
+                "name": "dashboards/01f1b382bbce120fb13da9b75acd03df/datasets/01f1b3fb519b114681427aec3421da27_coupon_code",
+                "query": {
+                  "datasetName": "29391df2",
+                  "fields": [
+                    {
+                      "name": "coupon_code",
+                      "expression": "`coupon_code`"
+                    },
+                    {
+                      "name": "coupon_code_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "coupon_code",
+                    "queryName": "dashboards/01f1b382bbce120fb13da9b75acd03df/datasets/01f1b3fb519b114681427aec3421da27_coupon_code"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "db5bb8f2",
+            "queries": [
+              {
+                "name": "dashboards/01f1b382bbce120fb13da9b75acd03df/datasets/01f1b3fb519b114681427aec3421da27_product_id",
+                "query": {
+                  "datasetName": "29391df2",
+                  "fields": [
+                    {
+                      "name": "product_id",
+                      "expression": "`product_id`"
+                    },
+                    {
+                      "name": "product_id_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "product_id",
+                    "queryName": "dashboards/01f1b382bbce120fb13da9b75acd03df/datasets/01f1b3fb519b114681427aec3421da27_product_id"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 8,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "77c24dc5",
+            "queries": [
+              {
+                "name": "dashboards/01f1b382bbce120fb13da9b75acd03df/datasets/01f1b3fb519b114681427aec3421da27_transaction_date",
+                "query": {
+                  "datasetName": "29391df2",
+                  "fields": [
+                    {
+                      "name": "transaction_date",
+                      "expression": "`transaction_date`"
+                    },
+                    {
+                      "name": "transaction_date_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-date-range-picker",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "transaction_date",
+                    "queryName": "dashboards/01f1b382bbce120fb13da9b75acd03df/datasets/01f1b3fb519b114681427aec3421da27_transaction_date"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
             "y": 0,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "1e4cc70d",
+            "queries": [
+              {
+                "name": "dashboards/01f1b382bbce120fb13da9b75acd03df/datasets/01f1b3fb519b114681427aec3421da27_brand_name",
+                "query": {
+                  "datasetName": "29391df2",
+                  "fields": [
+                    {
+                      "name": "brand_name",
+                      "expression": "`brand_name`"
+                    },
+                    {
+                      "name": "brand_name_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "brand_name",
+                    "queryName": "dashboards/01f1b382bbce120fb13da9b75acd03df/datasets/01f1b3fb519b114681427aec3421da27_brand_name"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
             "width": 1,
             "height": 2
           }
