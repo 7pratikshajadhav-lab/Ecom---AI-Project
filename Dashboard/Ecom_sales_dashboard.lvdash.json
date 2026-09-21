@@ -42,7 +42,7 @@
           },
           {
             "name": "avg_discount_pct",
-            "expr": "AVG(discount_pct)",
+            "expr": "AVG(discount_pct)/ CAST(100 AS DECIMAL(10,2))",
             "displayName": "Average Discount Percentage"
           },
           {
@@ -63,6 +63,11 @@
               },
               "abbreviation": "compact"
             }
+          },
+          {
+            "name": "Total Discount Percentage on gross amount",
+            "expr": "MEASURE(total_net_amount) / (MEASURE(total_net_amount) + MEASURE(total_discount_amount))",
+            "displayName": "Total Discount Percentage on gross amount"
           }
         ]
       }
@@ -121,7 +126,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "width": 9,
+            "width": 12,
             "height": 1
           }
         },
@@ -150,7 +155,7 @@
               "frame": {
                 "showTitle": true,
                 "title": {
-                  "value": "Monthly Sales by Net Amount",
+                  "value": "Month on Month Net Revenue",
                   "fields": []
                 }
               },
@@ -178,7 +183,7 @@
           "position": {
             "x": 0,
             "y": 3,
-            "width": 3,
+            "width": 6,
             "height": 6
           }
         },
@@ -252,9 +257,9 @@
             }
           },
           "position": {
-            "x": 4,
+            "x": 6,
             "y": 9,
-            "width": 5,
+            "width": 6,
             "height": 6
           }
         },
@@ -320,8 +325,8 @@
           },
           "position": {
             "x": 0,
-            "y": 9,
-            "width": 4,
+            "y": 21,
+            "width": 12,
             "height": 6
           }
         },
@@ -346,8 +351,14 @@
               "frame": {
                 "showTitle": true,
                 "showDescription": false,
-                "title": "Total Net Amount",
-                "description": "Sum of net transaction amounts after discounts and taxes"
+                "title": {
+                  "value": "Total Revenue",
+                  "fields": []
+                },
+                "description": {
+                  "value": "Sum of net transaction amounts after discounts and taxes",
+                  "fields": []
+                }
               },
               "version": 2,
               "widgetType": "counter",
@@ -374,7 +385,7 @@
           "position": {
             "x": 0,
             "y": 1,
-            "width": 1,
+            "width": 2,
             "height": 2
           }
         },
@@ -399,7 +410,10 @@
               "frame": {
                 "showTitle": true,
                 "showDescription": false,
-                "title": "Total Discount Amount"
+                "title": {
+                  "value": "Total Discount Amount",
+                  "fields": []
+                }
               },
               "version": 2,
               "widgetType": "counter",
@@ -412,7 +426,7 @@
                     "abbreviation": "compact",
                     "decimalPlaces": {
                       "type": "exact",
-                      "places": 2
+                      "places": 1
                     }
                   },
                   "displayName": "Total Discount Amount"
@@ -424,9 +438,9 @@
             }
           },
           "position": {
-            "x": 1,
+            "x": 4,
             "y": 1,
-            "width": 1,
+            "width": 2,
             "height": 2
           }
         },
@@ -451,7 +465,10 @@
               "frame": {
                 "showTitle": true,
                 "showDescription": false,
-                "title": "Average Discount Percentage"
+                "title": {
+                  "value": "Average Discount %",
+                  "fields": []
+                }
               },
               "version": 2,
               "widgetType": "counter",
@@ -459,8 +476,7 @@
                 "value": {
                   "fieldName": "measure(fact_transaction_denorm__avg_discount_pct)",
                   "format": {
-                    "type": "number-plain",
-                    "abbreviation": "compact",
+                    "type": "number-percent",
                     "decimalPlaces": {
                       "type": "exact",
                       "places": 2
@@ -475,9 +491,9 @@
             }
           },
           "position": {
-            "x": 5,
+            "x": 10,
             "y": 1,
-            "width": 1,
+            "width": 2,
             "height": 2
           }
         },
@@ -502,7 +518,10 @@
               "frame": {
                 "showTitle": true,
                 "showDescription": false,
-                "title": "Total Quantity Sold"
+                "title": {
+                  "value": "Total Quantity Sold",
+                  "fields": []
+                }
               },
               "version": 2,
               "widgetType": "counter",
@@ -526,9 +545,9 @@
             }
           },
           "position": {
-            "x": 2,
+            "x": 6,
             "y": 1,
-            "width": 1,
+            "width": 2,
             "height": 2
           }
         },
@@ -585,8 +604,8 @@
           },
           "position": {
             "x": 6,
-            "y": 3,
-            "width": 3,
+            "y": 15,
+            "width": 6,
             "height": 6
           }
         },
@@ -654,7 +673,7 @@
           "position": {
             "x": 0,
             "y": 15,
-            "width": 3,
+            "width": 6,
             "height": 6
           }
         },
@@ -683,7 +702,7 @@
               "frame": {
                 "showTitle": true,
                 "title": {
-                  "value": "Net Amount by Country",
+                  "value": "Net revenue by Country",
                   "fields": []
                 }
               },
@@ -709,9 +728,9 @@
             }
           },
           "position": {
-            "x": 3,
+            "x": 6,
             "y": 3,
-            "width": 3,
+            "width": 6,
             "height": 6
           }
         },
@@ -785,8 +804,8 @@
             }
           },
           "position": {
-            "x": 3,
-            "y": 15,
+            "x": 0,
+            "y": 9,
             "width": 6,
             "height": 6
           }
@@ -837,9 +856,66 @@
             }
           },
           "position": {
-            "x": 4,
+            "x": 8,
             "y": 1,
-            "width": 1,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "acba2a23",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "measure(fact_transaction_denorm__Total Discount Percentage on gross amount)",
+                      "expression": "MEASURE(`fact_transaction_denorm`.`Total Discount Percentage on gross amount`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": {
+                  "value": "Total Discount % on gross amount",
+                  "fields": []
+                },
+                "description": {
+                  "value": "Sum of net transaction amounts after discounts and taxes",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(fact_transaction_denorm__Total Discount Percentage on gross amount)",
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  },
+                  "displayName": "Total Net Amount"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 1,
+            "width": 2,
             "height": 2
           }
         }
@@ -1072,6 +1148,51 @@
           "position": {
             "x": 0,
             "y": 10,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "d5ed6518",
+            "queries": [
+              {
+                "name": "dashboards/01f1b382bbce120fb13da9b75acd03df/datasets/01f1b5a0255f1a37885e4a2ade0e3be4_day_name",
+                "query": {
+                  "datasetName": "29391df2",
+                  "fields": [
+                    {
+                      "name": "day_name",
+                      "expression": "`day_name`"
+                    },
+                    {
+                      "name": "day_name_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "day_name",
+                    "queryName": "dashboards/01f1b382bbce120fb13da9b75acd03df/datasets/01f1b5a0255f1a37885e4a2ade0e3be4_day_name"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 12,
             "width": 1,
             "height": 2
           }
